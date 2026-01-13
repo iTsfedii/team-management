@@ -1,6 +1,7 @@
 const express = require('express');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth')
+const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
@@ -9,12 +10,13 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(express. json());
+app.use(cors());  // ← ADD THIS (MUST BE BEFORE ROUTES)
+app.use(express.json());
 
-app.use('/api/auth',authRoutes)
+app.use('/api/auth', authRoutes)
 
 app.get('/', (req, res) => {
-  res.send('Hello World!  Server is running!  ');
+  res.send('Hello World!  Server is running!');
 });
 
 app.listen(5000, () => {
