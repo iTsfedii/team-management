@@ -62,4 +62,26 @@ router.beforeEach((to, from, next) => {
   }
 });
 
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token');
+  
+  // If user is logged in and tries to go to login page
+  if (to.path === '/login' && token) {
+    // Logout:  Remove token from storage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // Allow them to see login page (they're now logged out)
+    next();
+  } 
+  // If user is NOT logged in and tries to access protected pages
+  else if (to.path !== '/login' && !token) {
+    next('/login');
+  } 
+  // Normal navigation
+  else {
+    next();
+  }
+});
+
 export default router;
