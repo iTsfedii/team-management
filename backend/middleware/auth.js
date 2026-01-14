@@ -1,29 +1,50 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-const authMiddleware = (req, res, next) => {
+// ⭐ AUTHENTICATION MIDDLEWARE - Check if user is logged in
+const verifyToken = async (req, res, next) => {
   try {
-    // Get token from headers
-    const token = req.headers.authorization?.split(' ')[1];
+    // Get token from Authorization header
+    const token = req. headers. authorization?.split(' ')[1];
+    // Format: "Bearer TOKEN_HERE"
+
     if (!token) {
-      return res.status(401).json({
-        message: 'No token provided - please login first'
-      });
+      return res.status(401).json({ message: 'No token provided' });
     }
 
-    // Verify token is real
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Verify token is valid
+    const decoded = jwt. verify(token, process.env. JWT_SECRET);
+    
+    // Get user from database
+    const user = await User.findById(decoded. userId);
+    
+    if (!user) {
+      return res. status(401).json({ message: 'User not found' });
+    }
 
-    // Save user ID for later use
-    req.userId = decoded.userId;
-
-    // Continue to next route
+    // Attach user to request so route can use it
+    req.user = user;
     next();
+
   } catch (error) {
-    res.status(401).json({
-      message: 'Invalid or expired token',
-      error: error.message
-    });
+    res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
 
-module.exports = authMiddleware;
+// ⭐ AUTHORIZATION MIDDLEWARE - Check if user has the right role
+const authorize = (allowedRoles) => {
+  return (req, res, next) => {
+    // Check if user's role is in the allowed list
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ 
+        message: `Access denied. Required role: ${allowedRoles.join(' or ')}` 
+      });
+    }
+    next();
+  };
+};
+
+module.exports = {
+  verifyToken,
+  authorize
+};
