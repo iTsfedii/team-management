@@ -1,11 +1,26 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+// ⭐ VALIDATION MIDDLEWARE - Check if input data is valid
+const validateInput = (requiredFields) => {
+  return (req, res, next) => {
+    // Check if all required fields exist
+    for (let field of requiredFields) {
+      if (!req.body[field]) {
+        return res.status(400).json({ 
+          message: `Missing required field: ${field}` 
+        });
+      }
+    }
+    next();
+  };
+};
+
 // ⭐ AUTHENTICATION MIDDLEWARE - Check if user is logged in
 const verifyToken = async (req, res, next) => {
   try {
     // Get token from Authorization header
-    const token = req. headers. authorization?.split(' ')[1];
+    const token = req. headers.authorization?.split(' ')[1];
     // Format: "Bearer TOKEN_HERE"
 
     if (!token) {
@@ -46,5 +61,6 @@ const authorize = (allowedRoles) => {
 
 module.exports = {
   verifyToken,
-  authorize
+  authorize,
+  validateInput
 };

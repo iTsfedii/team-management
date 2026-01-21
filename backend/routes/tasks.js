@@ -1,84 +1,188 @@
-const express = require('express');
-const Task = require('../models/Task');
-const { verifyToken, authorize } = require('../middleware/auth');
+const express = require('express')
+const mongoose = require('mongoose')
+const Task = require('../models/Task')
+const { verifyToken, authorize, validateInput } = require('../middleware/auth')
 
-const router = express.Router();
+const router = express.Router()
 
-// ⭐ CREATE TASK - Only admins can create
-router.post('/', verifyToken, authorize(['admin']), async (req, res) => {
-  try {
-    const { title, description, assignedTo, priority, dueDate } = req.body;
+const PRIORITIES = ['low', 'medium', 'high']
 
-    const task = await Task.create({
-      title,
-      description,
-      assignedTo,
-      createdBy: req.user._id,  // ← Admin who created it
-      priority,
-      dueDate
-    });
+function isValidFutureDate(date) {
+  if (!Date.parse(date)) return false
+  return new Date(date) > new Date()
+}
 
-    res.status(201).json({
-      message: 'Task created successfully',
-      task
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+function isValidObjectId(id) {
+  return mongoose.Types.ObjectId.isValid(id)
+}
+
+/*
+CREATE TASK
+Admin only
+*/
+router.post(
+  '/',
+  verifyToken,
+  authorize(['admin']),
+  validateInput(['title', 'assignedTo', 'priority', 'dueDate']),
+  async (req, res) => {
+    try {
+      const { title, description, assignedTo, priority, dueDate } = req.body
+
+      if (!PRIORITIES.includes(priority)) {
+        return res.status(400).json({ message: 'Invalid priority' })
+      }
+
+      if (!isValidObjectId(assignedTo)) {
+        return res.status(400).json({ message: 'Invalid assigned user' })
+      }
+
+      if (!isValidFutureDate(dueDate)) {
+        return res.status(400).json({ message: 'Invalid due date' })
+      }
+
+      const task = await Task.create({
+        title,
+        description,
+        assignedTo,
+        priority,
+        dueDate,
+        createdBy: req.user._id
+      })
+
+      res.status(201).json({ message: 'Task created', task })
+    } catch {
+      res.status(500).json({ message: 'Server error' })
+    }
   }
-});
+)
 
-// ⭐ GET ALL TASKS - Only admins
-router.get('/', verifyToken, authorize(['admin']), async (req, res) => {
-  try {
-    const tasks = await Task.find()
-      .populate('assignedTo', 'name email')
-      .populate('createdBy', 'name email');
+/*
+GET ALL TASKS
+Admin only
+*/
+router.get(
+  '/',
+  verifyToken,
+  authorize(['admin']),
+  async (req, res) => {
+    try {
+      const tasks = await Task.find()
+        .populate('assignedTo', 'name email role')
+        .populate('createdBy', 'name email')
 
-    res.json(tasks);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error. message });
+      res.json({ count: tasks.length, tasks })
+    } catch {
+      res.status(500).json({ message: 'Server error' })
+    }
   }
-});
+)
 
-// ⭐ GET MY TASKS - Employees see their assigned tasks
-router.get('/my-tasks', verifyToken, async (req, res) => {
-  try {
-    const myTasks = await Task.find({ assignedTo: req.user._id })
-      .populate('createdBy', 'name email');
+/*
+GET MY TASKS
+Any logged user
+*/
+router.get(
+  '/my-tasks',
+  verifyToken,
+  async (req, res) => {
+    try {
+      const tasks = await Task.find({ assignedTo: req.user._id })
+        .populate('createdBy', 'name email')
 
-    res.json(myTasks);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+      res.json({ count: tasks.length, tasks })
+    } catch {
+      res.status(500).json({ message: 'Server error' })
+    }
   }
-});
+)
 
-// ⭐ UPDATE TASK - Only admins
-router.put('/:id', verifyToken, authorize(['admin']), async (req, res) => {
-  try {
-    const task = await Task.findByIdAndUpdate(
-      req.params. id,
-      req.body,
-      { new: true }
-    );
+/*
+UPDATE TASK
+Admin only
+*/
+router.put(
+  '/:id',
+  verifyToken,
+  async (req, res) => {
+    try {
+      if (!isValidObjectId(req.params. id)) {
+        return res. status(400).json({ message: 'Invalid task id' })
+      }
 
-    res.json({
-      message: 'Task updated successfully',
-      task
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+      // Get the task first
+      const task = await Task. findById(req.params.id)
+      if (!task) {
+        return res.status(404).json({ message: 'Task not found' })
+      }
+
+      // Only admin or the assigned employee can update
+      const isAdmin = req.user. role === 'admin'
+      const isAssigned = task.assignedTo.toString() === req.user._id.toString()
+
+      if (!isAdmin && !isAssigned) {
+        return res.status(403).json({ message: 'Not authorized to update this task' })
+      }
+
+      const update = {}
+      const { title, description, priority, dueDate, completed } = req.body
+
+      if (title) update.title = title
+      if (description) update.description = description
+      if (typeof completed === 'boolean') update.completed = completed
+
+      if (priority) {
+        if (!PRIORITIES.includes(priority)) {
+          return res. status(400).json({ message: 'Invalid priority' })
+        }
+        update.priority = priority
+      }
+
+      if (dueDate) {
+        if (!isValidFutureDate(dueDate)) {
+          return res.status(400).json({ message: 'Invalid due date' })
+        }
+        update.dueDate = dueDate
+      }
+
+      const updatedTask = await Task.findByIdAndUpdate(
+        req.params.id,
+        update,
+        { new: true }
+      )
+
+      res.json({ message: 'Task updated', task: updatedTask })
+    } catch {
+      res.status(500).json({ message: 'Server error' })
+    }
   }
-});
+)
+/*
+DELETE TASK
+Admin only
+*/
+router.delete(
+  '/:id',
+  verifyToken,
+  authorize(['admin']),
+  async (req, res) => {
+    try {
+      if (!isValidObjectId(req.params.id)) {
+        return res.status(400).json({ message: 'Invalid task id' })
+      }
 
-// ⭐ DELETE TASK - Only admins
-router.delete('/:id', verifyToken, authorize(['admin']), async (req, res) => {
-  try {
-    await Task.findByIdAndDelete(req.params.id);
+      const task = await Task.findByIdAndDelete(req.params.id)
 
-    res.json({ message: 'Task deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+      if (!task) {
+        return res.status(404).json({ message: 'Task not found' })
+      }
+
+      res.json({ message: 'Task deleted' })
+    } catch {
+      res.status(500).json({ message: 'Server error' })
+    }
   }
-});
+)
 
-module.exports = router;
+module.exports = router
+

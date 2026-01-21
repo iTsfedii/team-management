@@ -20,14 +20,14 @@ const routes = [
   },
   {
     path: '/register',
-    name: 'Register',
-    component: Register,
-    meta:  { requiresAuth: false }
+    name:  'Register',
+    component:  Register,
+    meta: { requiresAuth: false }
   },
   {
     path: '/dashboard',
-    name:  'Dashboard',
-    component:  Dashboard,
+    name: 'Dashboard',
+    component: Dashboard,
     meta: { requiresAuth: true }
   },
   {
@@ -43,43 +43,21 @@ const router = createRouter({
   routes
 });
 
-// ROUTE GUARD - Protect routes
+// ✅ SINGLE ROUTE GUARD - Check authentication
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
 
+  // If route requires auth
   if (to.meta.requiresAuth) {
-    // Route needs login
     if (token) {
       // User has token → Allow ✅
       next();
     } else {
-      // No token → Go to login ❌
+      // No token → Redirect to login ❌
       next('/login');
     }
   } else {
-    // Public route → Allow ✅
-    next();
-  }
-});
-
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token');
-  
-  // If user is logged in and tries to go to login page
-  if (to.path === '/login' && token) {
-    // Logout:  Remove token from storage
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    
-    // Allow them to see login page (they're now logged out)
-    next();
-  } 
-  // If user is NOT logged in and tries to access protected pages
-  else if (to.path !== '/login' && !token) {
-    next('/login');
-  } 
-  // Normal navigation
-  else {
+    // Public route (login, register, home) → Allow ✅
     next();
   }
 });

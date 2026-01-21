@@ -46,7 +46,7 @@ router.put('/:id/status', verifyToken, authorize(['admin']), async (req, res) =>
 
     const application = await InternApplication.findByIdAndUpdate(
       req.params.id,
-      { 
+      {
         status,
         decidedBy: req.user._id  // ← Admin who made the decision
       },
