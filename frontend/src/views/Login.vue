@@ -46,7 +46,8 @@
 </template>
 
 <script>
-export default {name: 'Login',
+export default {
+  name: 'Login',
   data() {
     return {
       email: '',
@@ -70,16 +71,30 @@ export default {name: 'Login',
           })
         })
 
+        // ✅ READ RESPONSE BODY ONLY ONCE
         const data = await response.json()
 
         if (response.ok) {
+          // ✅ Save token
           localStorage.setItem('token', data.token)
+          
+          // ✅ Save user data with role and status
+          if (data.user) {
+            localStorage.setItem('user', JSON.stringify(data.user))
+            console.log('✅ User saved:', data.user)
+            console.log('✅ User role:', data.user.role)
+          }
+          
+          // ✅ Redirect to dashboard
           this.$router.push('/dashboard')
         } else {
+          // ✅ Show error message
           this.error = data.message || 'Login failed'
+          console.error('❌ Login error:', data)
         }
       } catch (err) {
-        this.error = 'Error ' + err.message
+        this.error = 'Error: ' + err.message
+        console.error('❌ Fetch error:', err)
       } finally {
         this.loading = false
       }

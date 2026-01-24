@@ -33,9 +33,20 @@ const routes = [
   {
     path: '/profile',
     name: 'Profile',
-    component: Profile,
+    component: () => import('../views/Profile.vue'),
     meta: { requiresAuth: true }
-  }
+  },
+  {
+  path: '/intern-application',
+  name: 'InternApplication',
+  component: () => import('../views/InternApplication.vue')
+  },
+  {
+  path: '/admin',
+  name: 'Admin',
+  component: () => import('../views/Admin.vue'),
+  meta: { requiresAuth: true, requiresRole: 'admin' }
+}
 ];
 
 const router = createRouter({

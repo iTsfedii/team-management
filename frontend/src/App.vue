@@ -12,6 +12,7 @@
         <div class="nav-menu">
           <router-link to="/" class="nav-link">Home</router-link>
           
+          <!-- BEFORE LOGIN -->
           <router-link 
             v-if="!isLoggedIn" 
             to="/login" 
@@ -27,7 +28,16 @@
           >
             Register
           </router-link>
+
+          <router-link 
+            v-if="!isLoggedIn" 
+            to="/intern-application" 
+            class="nav-link intern-link"
+          >
+            🎓 Apply as Intern
+          </router-link>
           
+          <!-- AFTER LOGIN -->
           <router-link 
             v-if="isLoggedIn" 
             to="/dashboard" 
@@ -36,14 +46,20 @@
             Dashboard
           </router-link>
           
-          <router-link 
-            v-if="isLoggedIn" 
-            to="/profile" 
-            class="nav-link"
-          >
+          <router-link v-if="isLoggedIn" to="/profile" class="nav-link">
             Profile
           </router-link>
-          
+
+          <!-- ADMIN ONLY -->
+          <router-link 
+            v-if="isLoggedIn && isAdmin" 
+            to="/admin" 
+            class="nav-link admin-link"
+          >
+            ⚙️ Admin Panel
+          </router-link>
+
+          <!-- LOGOUT BUTTON -->
           <button 
             v-if="isLoggedIn" 
             @click="logout" 
@@ -63,33 +79,76 @@
     <!-- ===== FOOTER WITH SLOGAN ===== -->
     <footer class="footer">
       <p class="slogan">La vie est émotions</p>
-      <p class="copyright">&copy; 2026 Telecom Tunisia.  All rights reserved.</p>
+      <p class="copyright">&copy; 2026 Telecom Tunisia. All rights reserved.</p>
     </footer>
   </div>
 </template>
 
 <script>
 export default {
-  name:  'App',
+  name: 'App',
   data() {
     return {
-      isLoggedIn:  false
+      isLoggedIn: false,
+      isAdmin: false
     }
   },
   mounted() {
-    this.checkLoginStatus();
+    this.checkAuth();
+    // Check auth when storage changes (logout from another tab)
+    window.addEventListener('storage', this.checkAuth);
+    // Check auth after each route change
     this.$router.afterEach(() => {
-      this.checkLoginStatus();
+      this.checkAuth();
     });
   },
+  beforeUnmount() {
+    window.removeEventListener('storage', this.checkAuth);
+  },
   methods: {
-    checkLoginStatus() {
-      const token = localStorage. getItem('token');
-      this.isLoggedIn = !! token;
+    checkAuth() {
+      const token = localStorage.getItem('token');
+      const userStr = localStorage.getItem('user');
+      
+      console.log('=== checkAuth called ===');
+      console.log('Token exists:', !!token);
+      console.log('User string:', userStr);
+      
+      // Set isLoggedIn based on token
+      this.isLoggedIn = !!token;
+      
+      // Reset isAdmin
+      this.isAdmin = false;
+
+      if (userStr && token) {
+        try {
+          const userData = JSON.parse(userStr);
+          console.log('Parsed user:', userData);
+          console.log('User role:', userData.role);
+          
+          // Check if role is exactly 'admin'
+          if (userData.role === 'admin') {
+            this.isAdmin = true;
+            console.log('✅✅✅ SET isAdmin TO TRUE ✅✅✅');
+          } else {
+            console.log('❌ Role is not admin, it is:', userData.role);
+          }
+        } catch (err) {
+          console.error('Error parsing user data:', err);
+          this.isAdmin = false;
+        }
+      } else {
+        console.log('❌ No user string or token found');
+      }
+      
+      console.log('Final state - isLoggedIn:', this.isLoggedIn, 'isAdmin:', this.isAdmin);
+      console.log('=== checkAuth end ===');
     },
     logout() {
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       this.isLoggedIn = false;
+      this.isAdmin = false;
       this.$router.push('/login');
     }
   }
@@ -98,7 +157,7 @@ export default {
 
 <style scoped>
 #app {
-  font-family:  'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
   display: flex;
   flex-direction: column;
@@ -119,7 +178,7 @@ export default {
 .nav-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding:  0 20px;
+  padding: 0 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -145,7 +204,7 @@ export default {
   object-fit: contain;
 }
 
-. nav-logo-text {
+.nav-logo-text {
   color: #985F0D;
   font-size: 1.5rem;
   font-weight: bold;
@@ -161,14 +220,15 @@ export default {
 .nav-menu {
   display: flex;
   gap: 15px;
-  align-items:  center;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .nav-link {
   color: #985F0D;
   text-decoration: none;
-  padding:  8px 15px;
-  border-radius:  5px;
+  padding: 8px 15px;
+  border-radius: 5px;
   transition: all 0.3s ease;
   font-weight: 500;
   background: transparent;
@@ -176,12 +236,39 @@ export default {
   cursor: pointer;
 }
 
-. nav-link:hover {
+.nav-link:hover {
   background-color: #FFEC00;
-  color:  #985F0D;
-  transform:  translateY(-2px);
+  color: #985F0D;
+  transform: translateY(-2px);
 }
 
+/* INTERN LINK STYLING */
+.intern-link {
+  background-color: rgba(59, 130, 246, 0.1);
+  border: 2px solid #3B82F6;
+  color: #3B82F6;
+}
+
+.intern-link:hover {
+  background-color: #3B82F6;
+  color: white;
+  border-color: #3B82F6;
+}
+
+/* ADMIN LINK STYLING */
+.admin-link {
+  background-color: #EF4444;
+  color: white;
+  border: 2px solid #DC2626;
+  font-weight: bold;
+}
+
+.admin-link:hover {
+  background-color: #DC2626;
+  color: white;
+}
+
+/* LOGOUT BUTTON STYLING */
 .btn-logout {
   background-color: #985F0D;
   color: #FFFFFF;
@@ -207,7 +294,7 @@ main {
 /* ===== FOOTER ===== */
 .footer {
   background-color: #985F0D;
-  color:  #FFFFFF;
+  color: #FFFFFF;
   text-align: center;
   padding: 30px 20px;
   margin-top: auto;
@@ -218,13 +305,13 @@ main {
   font-size: 1.3rem;
   font-style: italic;
   font-weight: bold;
-  margin:  0 0 10px 0;
+  margin: 0 0 10px 0;
   letter-spacing: 1px;
 }
 
 .copyright {
   font-size: 0.9rem;
-  margin:  0;
+  margin: 0;
   opacity: 0.9;
 }
 
@@ -257,10 +344,10 @@ main {
   }
 
   .slogan {
-    font-size:  1.1rem;
+    font-size: 1.1rem;
   }
 
-  . footer {
+  .footer {
     padding: 20px 15px;
   }
 }
@@ -280,7 +367,7 @@ main {
 
   .nav-link {
     padding: 5px 8px;
-    font-size:  0.8rem;
+    font-size: 0.8rem;
   }
 }
 </style>

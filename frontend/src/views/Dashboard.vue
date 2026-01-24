@@ -313,11 +313,17 @@ export default {
 
 <style scoped>
 .dashboard-container {
+  width: 100%;
+  min-height: calc(100vh - 140px);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 0;
+  margin: 0;
+}
+
+.dashboard-inner {
   max-width: 1200px;
   margin: 0 auto;
-  padding:  30px 20px;
-  background:  linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  min-height: calc(100vh - 140px);
+  padding: 30px 20px;
 }
 
 .welcome-section {
