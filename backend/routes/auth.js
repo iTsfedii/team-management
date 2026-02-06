@@ -5,28 +5,31 @@ const User = require('../models/User');
 
 const router = express.Router();
 
+// ✅ This import is correct!
+const { sendLoginEmail } = require('../config/emailService');
+
 /* LOGIN */
 router.post('/login', async (req, res) => {
   try {
-    console.log('Login attempt with:', req.body);  // ✅ Log request
+    console.log('Login attempt with:', req.body);
 
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    console.log('User found:', user);  // ✅ Log user
+    console.log('User found:', user);
 
     if (!user) {
       return res.status(400).json({ message: 'User not found' });
     }
 
     const isMatch = await user.comparePassword(password);
-    console.log('Password match:', isMatch);  // ✅ Log password check
+    console.log('Password match:', isMatch);
 
     if (!isMatch) {
       return res.status(400).json({ message: 'Wrong password' });
     }
 
-    console.log('JWT_SECRET:', process.env.JWT_SECRET);  // ✅ Log JWT_SECRET
+    console.log('JWT_SECRET:', process.env.JWT_SECRET);
 
     const token = jwt.sign(
       { userId: user._id },
@@ -34,27 +37,35 @@ router.post('/login', async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    console.log('Token created:', token);  // ✅ Log token
+    console.log('Token created:', token);
 
+    // ✅ FIXED: Use the sendLoginEmail function (fire-and-forget)
+    sendLoginEmail(user.email, user.name).catch(err => {
+      console.error('Email notification failed (but login succeeded):', err);
+    });
+
+    // ✅ Respond to client immediately (don't wait for email)
     res.status(200).json({
       message: 'Login successful',
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role,
+        status: user.status
       }
     });
   } catch (error) {
-    console.log('Login Error:', error.message);  // ✅ Log error
-    res.status(500).json({ message: 'Server probleme', error: error.message });
+    console.log('Login Error:', error.message);
+    res.status(500).json({ message: 'Server problem', error: error.message });
   }
 });
 
 /* LOGOUT */
 router.post('/logout', (req, res) => {
   try {
-    // JWT logout:  token is deleted on frontend
+    // JWT logout: token is deleted on frontend
     // Backend just confirms logout was successful
     res.status(200).json({
       message: 'Logout successful'
@@ -90,10 +101,11 @@ router.post('/register', async (req, res) => {
     res.status(201).json({
       message: 'User registered successfully',
       user: {
-        id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
-	password: user.password
+        role: user.role,
+        status: user.status
       }
     });
   } catch (error) {

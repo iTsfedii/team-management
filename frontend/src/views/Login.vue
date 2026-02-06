@@ -71,24 +71,19 @@ export default {
           })
         })
 
-        // ✅ READ RESPONSE BODY ONLY ONCE
         const data = await response.json()
 
         if (response.ok) {
-          // ✅ Save token
           localStorage.setItem('token', data.token)
           
-          // ✅ Save user data with role and status
           if (data.user) {
             localStorage.setItem('user', JSON.stringify(data.user))
             console.log('✅ User saved:', data.user)
             console.log('✅ User role:', data.user.role)
           }
           
-          // ✅ Redirect to dashboard
           this.$router.push('/dashboard')
         } else {
-          // ✅ Show error message
           this.error = data.message || 'Login failed'
           console.error('❌ Login error:', data)
         }
@@ -104,18 +99,20 @@ export default {
 </script>
 
 <style scoped>
-/* Full page background stays */
 .login-container {
   position: relative;
   min-height: 100vh;
   width: 100%;
-  background-image: url('@/assets/images/background.jpg');
+  background-image: url('/telecom.jpg');
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Modern overlay: gradient + subtle dark */
 .overlay {
   position: absolute;
   inset: 0;
@@ -125,22 +122,14 @@ export default {
     linear-gradient(180deg, rgba(2, 6, 23, 0.35), rgba(2, 6, 23, 0.75));
 }
 
-/*
-  Make it NOT only centered:
-  - Form sits on the RIGHT side
-  - Full height layout
-*/
 .login-box{
   position: relative;
   z-index: 1;
   width: min(520px, 92vw);
   padding: 24px;
-
-  /* add these to center it */
   margin: 0 auto;
 }
 
-/* Modern glass card */
 .login-content {
   width: 100%;
   max-width: 420px;
@@ -170,21 +159,18 @@ export default {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: rgba(226, 232, 240, 0.9); /* modern light slate */
+  color: rgba(226, 232, 240, 0.9);
   font-size: 13px;
   font-weight: 600;
 }
 
-/* Inputs: no yellow, modern border + focus ring */
 .form-group input {
   width: 100%;
   padding: 12px 14px;
   border-radius: 12px;
-
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(2, 6, 23, 0.35);
   color: #ffffff;
-
   transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
 }
 
@@ -199,24 +185,26 @@ export default {
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.22);
 }
 
-/* Button: modern gradient */
 .btn-login {
   width: 100%;
   padding: 12px 14px;
   margin-top: 10px;
   border-radius: 12px;
   border: none;
-
   background: linear-gradient(135deg, #6366f1, #2563eb);
   color: #ffffff;
   font-weight: 700;
   cursor: pointer;
-
   transition: transform .05s ease, filter .15s ease;
 }
 
-.btn-login:hover { filter: brightness(1.06); }
-.btn-login:active { transform: translateY(1px); }
+.btn-login:hover { 
+  filter: brightness(1.06); 
+}
+
+.btn-login:active { 
+  transform: translateY(1px); 
+}
 
 .btn-login:disabled {
   background: rgba(148, 163, 184, 0.35);
@@ -224,7 +212,6 @@ export default {
   filter: none;
 }
 
-/* Error */
 .error {
   background: rgba(239, 68, 68, 0.14);
   color: #fecaca;
@@ -234,7 +221,6 @@ export default {
   margin-bottom: 18px;
 }
 
-/* Links */
 .register-link {
   text-align: left;
   margin-top: 18px;
@@ -253,11 +239,9 @@ export default {
   text-decoration: underline;
 }
 
-/* Mobile: bring it back to center and full width */
 @media (max-width: 900px) {
   .login-box {
     width: 100%;
-    margin-left: 0;
     padding: 18px;
   }
 

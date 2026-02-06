@@ -5,7 +5,6 @@
       <div class="nav-container">
         <!-- LOGO -->
         <div class="nav-logo-section">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Tunisie_Telecom_logo.svg/1200px-Tunisie_Telecom_logo.svg.png" alt="Telecom Tunisia Logo" class="nav-logo-img" />
           <router-link to="/" class="nav-logo-text">Team Management</router-link>
         </div>
         
@@ -56,7 +55,7 @@
             to="/admin" 
             class="nav-link admin-link"
           >
-            ⚙️ Admin Panel
+            ⚙ Admin Panel
           </router-link>
 
           <!-- LOGOUT BUTTON -->
@@ -166,12 +165,12 @@ export default {
 
 /* ===== NAVBAR ===== */
 .navbar {
-  background: linear-gradient(135deg, #FFFFFF 0%, #F7E1B5 100%);
+  background: linear-gradient(135deg, #1E88E5 0%, #26C6DA 25%, #66BB6A 50%, #FDD835 75%, #FF9800 100%);
   padding: 0;
   position: sticky;
   top: 0;
-  box-shadow: 0 4px 12px rgba(152, 95, 13, 0.15);
-  border-bottom: 3px solid #FFEC00;
+  box-shadow: 0 4px 12px rgba(30, 136, 229, 0.3);
+  border-bottom: 3px solid #FF9800;
   z-index: 1000;
 }
 
@@ -205,15 +204,16 @@ export default {
 }
 
 .nav-logo-text {
-  color: #985F0D;
+  color: #FFFFFF;
   font-size: 1.5rem;
   font-weight: bold;
   text-decoration: none;
   transition: color 0.3s ease;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .nav-logo-text:hover {
-  color: #FFEC00;
+  color: #FDD835;
 }
 
 /* ===== NAV MENU ===== */
@@ -225,34 +225,37 @@ export default {
 }
 
 .nav-link {
-  color: #985F0D;
+  color: #FFFFFF;
   text-decoration: none;
   padding: 8px 15px;
   border-radius: 5px;
   transition: all 0.3s ease;
   font-weight: 500;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.1);
   border: none;
   cursor: pointer;
+  backdrop-filter: blur(10px);
 }
 
 .nav-link:hover {
-  background-color: #FFEC00;
-  color: #985F0D;
+  background-color: rgba(255, 255, 255, 0.3);
+  color: #FFFFFF;
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* INTERN LINK STYLING */
 .intern-link {
-  background-color: rgba(59, 130, 246, 0.1);
-  border: 2px solid #3B82F6;
-  color: #3B82F6;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid #FFFFFF;
+  color: #1E88E5;
+  font-weight: bold;
 }
 
 .intern-link:hover {
-  background-color: #3B82F6;
-  color: white;
-  border-color: #3B82F6;
+  background-color: #FFFFFF;
+  color: #FF9800;
+  border-color: #FF9800;
 }
 
 /* ADMIN LINK STYLING */
@@ -270,9 +273,9 @@ export default {
 
 /* LOGOUT BUTTON STYLING */
 .btn-logout {
-  background-color: #985F0D;
+  background-color: rgba(255, 255, 255, 0.2);
   color: #FFFFFF;
-  border: none;
+  border: 2px solid #FFFFFF;
   cursor: pointer;
   padding: 8px 15px;
   border-radius: 5px;
@@ -281,8 +284,8 @@ export default {
 }
 
 .btn-logout:hover {
-  background-color: #FFEC00;
-  color: #985F0D;
+  background-color: #FFFFFF;
+  color: #FF9800;
   transform: translateY(-2px);
 }
 
@@ -293,12 +296,13 @@ main {
 
 /* ===== FOOTER ===== */
 .footer {
-  background-color: #985F0D;
+  background: linear-gradient(135deg, #1E88E5 0%, #26C6DA 25%, #66BB6A 50%, #FDD835 75%, #FF9800 100%);
   color: #FFFFFF;
   text-align: center;
   padding: 30px 20px;
   margin-top: auto;
-  border-top: 3px solid #FFEC00;
+  border-top: 3px solid #26C6DA;
+  box-shadow: 0 -4px 12px rgba(30, 136, 229, 0.3);
 }
 
 .slogan {
@@ -307,12 +311,14 @@ main {
   font-weight: bold;
   margin: 0 0 10px 0;
   letter-spacing: 1px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .copyright {
   font-size: 0.9rem;
   margin: 0;
-  opacity: 0.9;
+  opacity: 0.95;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* ===== RESPONSIVE ===== */

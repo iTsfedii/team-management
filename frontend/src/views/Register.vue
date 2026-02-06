@@ -1,5 +1,7 @@
 <template>
   <div class="register-container">
+    <div class="overlay"></div>
+    
     <div class="register-box">
       <div class="register-content">
         <h2>Register</h2>
@@ -111,117 +113,138 @@ export default {
 
 <style scoped>
 .register-container {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  background-image: url('/telecom.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
-  justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 60px);
-  background: linear-gradient(135deg, #1E3A8A 0%, #0F172A 50%, #1E40AF 100%);
+  justify-content: center;
+  overflow: hidden;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(900px 500px at 20% 20%, rgba(99, 102, 241, 0.35), transparent 60%),
+    radial-gradient(700px 450px at 85% 80%, rgba(37, 99, 235, 0.25), transparent 55%),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.35), rgba(2, 6, 23, 0.75));
 }
 
 .register-box {
-  width: 100%;
-  max-width: 450px;
-  padding: 20px;
+  position: relative;
+  z-index: 1;
+  width: min(520px, 92vw);
+  padding: 24px;
 }
 
 .register-content {
-  background: rgba(255, 255, 255, 0.95);
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   padding: 40px;
-  border-radius: 10px;
-  box-shadow:  0 8px 32px rgba(0, 0, 0, 0.3);
-  border-left: 5px solid #3B82F6;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
 }
 
 .register-content h2 {
-  text-align: center;
-  margin-bottom: 30px;
-  color: #1F2937;
-  font-size: 2rem;
+  text-align: left;
+  margin-bottom: 22px;
+  color: #FFFFFF;
+  font-size: 28px;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .form-group label {
-  display:  block;
-  margin-bottom:  8px;
-  color:  #1F2937;
-  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+  color: rgba(226, 232, 240, 0.9);
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .form-group input {
   width: 100%;
-  padding: 12px;
-  border: 2px solid #3B82F6;
-  border-radius: 5px;
-  background-color: #F0F9FF;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(2, 6, 23, 0.35);
+  color: #FFFFFF;
+}
+
+.form-group input::placeholder {
+  color: rgba(165, 180, 252, 0.85);
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #1E40AF;
-  background-color: #FFFFFF;
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+  border-color: rgba(99, 102, 241, 0.75);
+  background: rgba(2, 6, 23, 0.5);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.22);
 }
 
 .btn-register {
   width: 100%;
-  padding: 12px;
-  background-color: #3B82F6;
-  color: #FFFFFF;
+  padding: 12px 14px;
+  margin-top: 10px;
+  border-radius: 12px;
   border: none;
-  border-radius: 5px;
+  background: linear-gradient(135deg, #6366F1, #2563EB);
+  color: #FFFFFF;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: bold;
-  font-size: 1rem;
-  transition: all 0.3s ease;
 }
 
-.btn-register:not(:disabled):hover {
-  background-color: #1E40AF;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+.btn-register:hover {
+  filter: brightness(1.06);
 }
 
 .btn-register:disabled {
-  background-color: #9CA3AF;
+  background: rgba(148, 163, 184, 0.35);
   cursor: not-allowed;
 }
 
 .error {
-  color: #7F1D1D;
-  background-color:  #FEE2E2;
-  border: 2px solid #FCA5A5;
+  background: rgba(239, 68, 68, 0.14);
+  color: #FECACA;
+  border: 1px solid rgba(239, 68, 68, 0.25);
   padding: 12px;
-  margin-bottom: 20px;
-  border-radius: 5px;
+  border-radius: 12px;
+  margin-bottom: 18px;
 }
 
 .success {
-  color: #065F46;
-  background-color: #DCFCE7;
-  border:  2px solid #86EFAC;
+  background: rgba(34, 197, 94, 0.14);
+  color: #BBF7D0;
+  border: 1px solid rgba(34, 197, 94, 0.25);
   padding: 12px;
-  margin-bottom: 20px;
-  border-radius: 5px;
+  border-radius: 12px;
+  margin-bottom: 18px;
 }
 
 .login-link {
-  text-align: center;
-  margin-top: 20px;
-  color: #4B5563;
+  margin-top: 18px;
+  color: rgba(199, 210, 254, 0.95);
+  font-size: 14px;
 }
 
 .login-link a {
-  color: #3B82F6;
+  color: #A5B4FC;
+  font-weight: 700;
   text-decoration: none;
-  font-weight: bold;
-  transition: all 0.3s ease;
 }
 
 .login-link a:hover {
-  color: #1E40AF;
   text-decoration: underline;
 }
 

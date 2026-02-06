@@ -116,4 +116,52 @@ router.delete('/:userId', verifyToken, authorize(['admin']), async (req, res) =>
   }
 });
 
+/*
+CHANGE PASSWORD
+Any logged user
+*/
+router.put(
+  '/change-password',
+  verifyToken,
+  async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+
+      // Validate input
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: 'Current password and new password are required' });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: 'New password must be at least 6 characters' });
+      }
+
+      // Get user
+      const user = await User.findById(req.user._id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Check current password
+      const isPasswordValid = await user.comparePassword(currentPassword);
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: 'Current password is incorrect' });
+      }
+
+      // Update password
+      user.password = newPassword;
+      await user.save();
+
+      res.json({ message: 'Password changed successfully' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
+    }
+  }
+);
+
+
+
+
+
 module.exports = router;
