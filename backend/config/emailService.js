@@ -3,8 +3,8 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'aestheticgod37@gmail.com',
-    pass: 'tmjm owmc zjwp soxg'  // ← Replace this with the password you just copied
+    user: process.env.EMAIL_USER,    // ← Should say this
+    pass: process.env.EMAIL_PASS     // ← Should say this
   }
 });
 
@@ -12,7 +12,7 @@ async function sendLoginEmail(userEmail, userName) {
   console.log('📧 Attempting to send email to:', userEmail);
   
   const mailOptions = {
-    from: 'aestheticgod37@gmail.com',
+    from: process.env.EMAIL_USER,
     to: userEmail,
     subject: 'Login Notification - Team Management',
     html: `
