@@ -14,24 +14,29 @@ const app = express();
 
 connectDB();
 
-// ⭐ SECURITY: Rate Limiting (Returns JSON properly)
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 attempts
-  skipSuccessfulRequests: true, // Don't count successful logins
-  handler: function (req, res) {
-    return res.status(429).json({
-      message: 'Too many login attempts. Please try again in 15 minutes.'
+// ⭐ SECURITY: Rate Limiting Configuration
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 5,                     // 5 requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json({
+      message: 'Too many login attempts from this IP. Please try again in 15 minutes.',
+      error: 'Rate limit exceeded'
     });
   }
 });
 
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests
-  handler: function (req, res) {
-    return res.status(429).json({
-      message: 'Too many requests. Please try again later.'
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 100,                   // 100 requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json({
+      message: 'Too many requests from this IP. Please try again later.',
+      error: 'Rate limit exceeded'
     });
   }
 });
@@ -39,10 +44,10 @@ const apiLimiter = rateLimit({
 app.use(cors());
 app.use(express.json());
 
-// Apply rate limiters to specific routes
-app.use('/api/auth/login', loginLimiter);
-app.use('/api/auth/register', loginLimiter);
-app.use('/api/', apiLimiter);
+// ⭐ Apply Rate Limiters
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
+app.use('/api/', generalLimiter);
 
 // Routes
 app.use('/api/auth', authRoutes);
